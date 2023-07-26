@@ -14,10 +14,8 @@ from kaggle import KaggleApi
 
 from datetime import datetime
 
-def main():
-    kaggleAccounts = ["daikon99"]
-    channel = '90_新運営'
-
+def extract_kaggle(kaggleAccounts):
+    # selenium driverの定義
     driver_path = '/app/.chromedriver/bin/chromedriver'
     service = Service(executable_path=driver_path)
 
@@ -27,18 +25,11 @@ def main():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--remote-debugging-port=9222')
-    #options.add_argument('--disable-gpu')
-    #options.add_argument('--disable-extensions')
-    #options.add_argument('--proxy-server="direct://"')
-    #options.add_argument('--proxy-bypass-list=*')
-    #options.add_argument('--start-maximized')
-    #options.add_argument('--headless')
 
     driver = webdriver.Chrome(service=service, options=options)
     driver.set_window_size(950, 800)
 
-    output = ""
-    output_d = {}
+    extract_dict = {}
 
     for ka in kaggleAccounts:
         txt = ""
@@ -59,39 +50,55 @@ def main():
         for s in sf:
             txt += s.contents[0]
             txt += ", "
-            if s.contents[0] in output_d.keys():
-                output_d[s.contents[0]].append(ka)
+            if s.contents[0] in extract_dict.keys():
+                extract_dict[s.contents[0]].append(ka)
             else:
-                output_d[s.contents[0]] = [ka]
+                extract_dict[s.contents[0]] = [ka]
         txt += "\n"
-        output += txt
     
-    slack_token = os.environ['SLACK_TOKEN']
-    client = WebClient(token=slack_token)
+    return extract_dict
 
+def extract_kaggle():
+    # Kaggle APIの定義
     api = KaggleApi()
     api.authenticate()
 
-    competitions = api.competitions_list()
+    competitions_list = api.competitions_list()
+    competition_dict = {}
 
-    competition_d = {}
-
-    for com in competitions:
+    for com in competitions_list:
         reward = com.reward
         if "$" in reward:
             d = com.deadline - datetime.now()
-            competition_d[com.title] = [com.ref[com.ref.rfind('/')+1:], reward, d.days, com.teamCount]
+            competition_dict[com.title] = [com.ref[com.ref.rfind('/')+1:], reward, d.days, com.teamCount]
+    
+    return competition_dict
+
+
+def main():
+    kaggleAccounts = ["daikon99"]
+    channel = '90_新運営'
+
+    # seleniumによって抽出された結果
+    extract_dict = extract_kaggle(kaggleAccounts)
+    # kaggleのサイトから最新コンペのリストを取得
+    competition_dict = extract_dict()
+
+    # slack api
+    slack_token = os.environ['SLACK_TOKEN']
+    client = WebClient(token=slack_token)
 
     text = "現在コンペに参加している人の一覧\n"
-    for k,v in output_d.items():
-        if k in competition_d.keys():
-            com = competition_d[k]
+    for k,v in extract_dict.items():
+        if k in competition_dict.keys():
+            com = competition_dict[k]
             text += f"＊ ＊{k}＊ \n \t(残り{com[2]}日,\t 参加{com[3]}チーム)\n \t\t>>>>\t\t["
         
             for n in v:
                 text += f"＠{n}, "
             text += "]\n"
 
+    # slackに通知する
     try:
         response = client.chat_postMessage(
             channel=channel,
