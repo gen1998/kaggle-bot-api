@@ -58,7 +58,7 @@ def extract_kaggle(kaggleAccounts):
     
     return extract_dict
 
-def extract_kaggle():
+def extract_competition():
     # Kaggle APIの定義
     api = KaggleApi()
     api.authenticate()
@@ -82,7 +82,7 @@ def main():
     # seleniumによって抽出された結果
     extract_dict = extract_kaggle(kaggleAccounts)
     # kaggleのサイトから最新コンペのリストを取得
-    competition_dict = extract_dict()
+    competition_dict = extract_competition()
 
     # slack api
     slack_token = os.environ['SLACK_TOKEN']
