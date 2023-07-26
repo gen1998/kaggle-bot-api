@@ -22,12 +22,13 @@ def main():
     service = Service(executable_path=driver_path)
 
     options = Options()
-    options.add_argument('--disable-gpu')
-    options.add_argument('--disable-extensions')
-    options.add_argument('--proxy-server="direct://"')
-    options.add_argument('--proxy-bypass-list=*')
-    options.add_argument('--start-maximized')
     options.add_argument('--headless')
+    #options.add_argument('--disable-gpu')
+    #options.add_argument('--disable-extensions')
+    #options.add_argument('--proxy-server="direct://"')
+    #options.add_argument('--proxy-bypass-list=*')
+    #options.add_argument('--start-maximized')
+    #options.add_argument('--headless')
 
     driver = webdriver.Chrome(service=service, options=options)
 
