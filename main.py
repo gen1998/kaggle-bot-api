@@ -29,7 +29,7 @@ def main():
     options.add_argument('--start-maximized')
     options.add_argument('--headless')
 
-    driver = webdriver.Chrome(service=service, chrome_options=options)
+    driver = webdriver.Chrome(service=service, options=options)
 
     output = ""
     output_d = {}
