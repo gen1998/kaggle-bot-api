@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from time import sleep
 
 from slack_sdk import WebClient
@@ -18,6 +19,7 @@ def main():
     channel = '90_新運営'
 
     driver_path = '/app/.chromedriver/bin/chromedriver'
+    service = Service(executable_path=driver_path)
 
     options = Options()
     options.add_argument('--disable-gpu')
@@ -27,7 +29,7 @@ def main():
     options.add_argument('--start-maximized')
     options.add_argument('--headless')
 
-    driver = webdriver.Chrome(executable_path = driver_path, chrome_options = options)
+    driver = webdriver.Chrome(service=service, chrome_options=options)
 
     output = ""
     output_d = {}
