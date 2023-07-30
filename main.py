@@ -5,14 +5,18 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from time import sleep
 
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 from kaggle import KaggleApi
 
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
 from datetime import datetime
+from time import sleep
+import numpy as np
 
 def extract_kaggle(kaggleAccounts):
     # selenium driverの定義
@@ -74,9 +78,38 @@ def extract_competition():
     
     return competition_dict
 
+def extract_spreadsheet():
+    scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
+    
+    # 辞書オブジェクト。認証に必要な情報をHerokuの環境変数から呼び出している
+    credential = {
+                    "type": "service_account",
+                    "project_id": os.environ['SHEET_PROJECT_ID'],
+                    "private_key_id": os.environ['SHEET_PRIVATE_KEY_ID'],
+                    "private_key": os.environ['SHEET_PRIVATE_KEY'],
+                    "client_email": os.environ['SHEET_CLIENT_EMAIL'],
+                    "client_id": os.environ['SHEET_CLIENT_ID'],
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token",
+                    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                    "client_x509_cert_url":  os.environ['SHEET_CLIENT_X509_CERT_URL']
+                }
+    
+    credentials = ServiceAccountCredentials.from_json_keyfile_dict(credential, scope)
+    client = gspread.authorize(credentials)
+
+    #共有設定したスプレッドシートの1枚目のシートを開く
+    SpreadSheet = client.open_by_key(os.environ['SPREADSHEET_KEY'])
+    RawData = SpreadSheet.worksheet(os.environ['SPREADSHEET_NAME_1'])
+
+    data = RawData.get_all_values()
+    name_list = np.array(data)[:, 1][1:]
+
+    return list(name_list)
 
 def main():
-    kaggleAccounts = ["daikon99"]
+    kaggleAccounts = extract_spreadsheet()[:2]
     channel = '90_新運営'
 
     # seleniumによって抽出された結果
