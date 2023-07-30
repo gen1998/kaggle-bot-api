@@ -45,7 +45,10 @@ def extract_kaggle(kaggleAccounts):
 
         html = driver.page_source.encode('utf-8')
         soup = BeautifulSoup(html, 'html.parser')
-        sf = soup.find_all('ul', class_=lambda value: value and value.startswith('km-list km-list'))[0]
+        try:
+            sf = soup.find_all('ul', class_=lambda value: value and value.startswith('km-list km-list'))[0]
+        except:
+            continue
         sf = sf.find_all('div', class_=lambda value: value and value.startswith('sc-beqWaB'))
 
         if len(sf)<1:
@@ -110,7 +113,7 @@ def extract_spreadsheet():
     return list(name_list)
 
 def main():
-    kaggleAccounts = extract_spreadsheet()[:2]
+    kaggleAccounts = extract_spreadsheet()
     channel = '90_新運営'
 
     # seleniumによって抽出された結果
