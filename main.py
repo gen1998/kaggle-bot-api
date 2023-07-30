@@ -38,7 +38,6 @@ def extract_kaggle(kaggleAccounts):
     for ka in kaggleAccounts:
         txt = ""
         URL = f"https://www.kaggle.com/{ka}/competitions?tab=active"
-        print(URL)
         driver.get(URL)
 
         sleep(3)
@@ -114,7 +113,7 @@ def extract_spreadsheet():
 
 def main():
     kaggleAccounts = extract_spreadsheet()
-    channel = '90_新運営'
+    channel = '30_kaggle共有'
 
     # seleniumによって抽出された結果
     extract_dict = extract_kaggle(kaggleAccounts)
