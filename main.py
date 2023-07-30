@@ -105,7 +105,7 @@ def extract_spreadsheet():
     RawData = SpreadSheet.worksheet(os.environ['SPREADSHEET_NAME_1'])
 
     data = RawData.get_all_values()
-    name_list = np.array(data)[:, 1][1:]
+    name_list = np.array(data)[:, 8][1:]
 
     return list(name_list)
 
