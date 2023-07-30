@@ -38,6 +38,7 @@ def extract_kaggle(kaggleAccounts):
     for ka in kaggleAccounts:
         txt = ""
         URL = f"https://www.kaggle.com/{ka}/competitions?tab=active"
+        print(URL)
         driver.get(URL)
 
         sleep(3)
