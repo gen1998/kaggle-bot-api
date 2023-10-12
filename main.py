@@ -125,6 +125,7 @@ def main():
     client = WebClient(token=slack_token)
 
     text = "現在コンペに参加している人の一覧\n"
+    """
     for k,v in extract_dict.items():
         if k in competition_dict.keys():
             com = competition_dict[k]
@@ -133,6 +134,17 @@ def main():
             for n in v:
                 text += f"＠{n}, "
             text += "]\n"
+    """
+    
+    competition_dict = {k: v for k, v in sorted(competition_dict.items(), key=lambda x:x[1][2])}
+
+    for k, v in competition_dict.items():
+        text += f"＊ ＊{k}＊ \n \t(残り{v[2]}日,\t 参加{v[3]}チーム)\n \t\t>>>>\t\t["
+        members = extract_dict[k]
+
+        for n in members:
+            text += f"＠{n}, "
+        text += "]\n"
 
     # slackに通知する
     try:
