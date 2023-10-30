@@ -56,6 +56,7 @@ def extract_kaggle(kaggleAccounts):
         competition_rank = soup_find.find_all('span', class_=lambda value: value and value.startswith('sc-ivnCJf'))
 
         for name, rank in zip(competition_name, competition_rank):
+            rank = rank.contents[0]
             output = f"{int(rank[:rank.find('/')])}位 @{name}"
             if name.contents[0] in extract_dict.keys():
                 extract_dict[name.contents[0]].append(output)
