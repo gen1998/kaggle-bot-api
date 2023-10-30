@@ -58,7 +58,7 @@ def extract_kaggle(kaggleAccounts):
         for name, rank in zip(competition_name, competition_rank):
             rank_ = rank.contents[0]
             name_ = name.contents[0]
-            output = f"{int(rank_[:rank_.find('/')])}位 @{name_}"
+            output = f"{int(rank_[:rank_.find('/')])}位 @{ka}"
             if name_ in extract_dict.keys():
                 extract_dict[name_].append(output)
             else:
@@ -78,7 +78,7 @@ def extract_competition():
         reward = com.reward
         if "$" in reward:
             d = com.deadline - datetime.now()
-            competition_dict[com.title] = [com.ref[com.ref.rfind('/')+1:], reward, d.days, com.teamCount]
+            competition_dict[com.title] = [com.ref[com.ref.rfind('/')+1:], reward, d.days, com.teamCount, com.url]
     
     return competition_dict
 
@@ -131,7 +131,7 @@ def main():
 
     for k, v in competition_dict.items():
         if k in extract_dict.keys():
-            text += f"＊ ＊{k}＊ \n \t(残り{v[2]}日,\t 参加{v[3]}チーム)\n \t\t>>>>\t\t["
+            text += f"＊ ＊<{v[4]}|{k}>＊ \n \t(残り{v[2]}日,\t 参加{v[3]}チーム)\n \t\t>>>>\t\t["
             members = extract_dict[k]
 
             for n in members:
