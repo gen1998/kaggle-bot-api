@@ -45,23 +45,22 @@ def extract_kaggle(kaggleAccounts):
         html = driver.page_source.encode('utf-8')
         soup = BeautifulSoup(html, 'html.parser')
         try:
-            sf = soup.find_all('ul', class_=lambda value: value and value.startswith('km-list km-list'))[0]
+            soup_find = soup.find_all('ul', class_=lambda value: value and value.startswith('km-list km-list'))[0]
         except:
             continue
-        sf = sf.find_all('div', class_=lambda value: value and value.startswith('sc-beqWaB'))
-
-        if len(sf)<1:
+        
+        if len(soup_find)<1:
             continue
 
-        txt = f"{ka} : "
-        for s in sf:
-            txt += s.contents[0]
-            txt += ", "
-            if s.contents[0] in extract_dict.keys():
-                extract_dict[s.contents[0]].append(ka)
+        competition_name = soup_find.find_all('div', class_=lambda value: value and value.startswith('sc-beqWaB'))
+        competition_rank = soup_find.find_all('span', class_=lambda value: value and value.startswith('sc-ivnCJf'))
+
+        for name, rank in zip(competition_name, competition_rank):
+            output = f"{int(rank[:rank.find('/')])}位 @{name}"
+            if name.contents[0] in extract_dict.keys():
+                extract_dict[name.contents[0]].append(output)
             else:
-                extract_dict[s.contents[0]] = [ka]
-        txt += "\n"
+                extract_dict[name.contents[0]] = [output]
     
     return extract_dict
 
@@ -125,16 +124,6 @@ def main():
     client = WebClient(token=slack_token)
 
     text = "現在コンペに参加している人の一覧\n"
-    """
-    for k,v in extract_dict.items():
-        if k in competition_dict.keys():
-            com = competition_dict[k]
-            text += f"＊ ＊{k}＊ \n \t(残り{com[2]}日,\t 参加{com[3]}チーム)\n \t\t>>>>\t\t["
-        
-            for n in v:
-                text += f"＠{n}, "
-            text += "]\n"
-    """
     
     competition_dict = {k: v for k, v in sorted(competition_dict.items(), key=lambda x:x[1][2])}
 
@@ -144,7 +133,7 @@ def main():
             members = extract_dict[k]
 
             for n in members:
-                text += f"＠{n}, "
+                text += f"{n}, "
             text += "]\n"
 
     # slackに通知する
