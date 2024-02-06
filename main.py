@@ -52,8 +52,8 @@ def extract_kaggle(kaggleAccounts):
         if len(soup_find)<1:
             continue
 
-        competition_name = soup_find.find_all('div', class_=lambda value: value and value.startswith('sc-beqWaB'))
-        competition_rank = soup_find.find_all('span', class_=lambda value: value and value.startswith('sc-ivnCJf'))
+        competition_name = soup_find.find_all('div', class_=lambda value: value and value.startswith('sc-fmKFGs'))
+        competition_rank = soup_find.find_all('span', class_=lambda value: value and value.startswith('sc-hIPBNq'))
 
         for name, rank in zip(competition_name, competition_rank):
             rank_ = rank.contents[0]
