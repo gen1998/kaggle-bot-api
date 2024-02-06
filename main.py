@@ -58,7 +58,7 @@ def extract_kaggle(kaggleAccounts):
         for name, rank in zip(competition_name, competition_rank):
             rank_ = rank.contents[0]
             name_ = name.contents[0]
-            output = f"{int(rank_[:rank_.find('/')])}位 @{ka}"
+            output = f"{int(rank_[:rank_.find('/')])}位@{ka}"
             if name_ in extract_dict.keys():
                 extract_dict[name_].append(output)
             else:
@@ -114,9 +114,11 @@ def extract_spreadsheet():
 
 def main():
     kaggleAccounts = extract_spreadsheet()
-    channel = '30_kaggle共有'
+    #channel = '30_kaggle共有'
+    channel = '91_新運営_random'
 
     # seleniumによって抽出された結果
+    print("kaggleaccounts", kaggleAccounts)
     extract_dict = extract_kaggle(kaggleAccounts)
     # kaggleのサイトから最新コンペのリストを取得
     competition_dict = extract_competition()
@@ -128,6 +130,7 @@ def main():
     text = "現在コンペに参加している人の一覧\n"
     
     competition_dict = {k: v for k, v in sorted(competition_dict.items(), key=lambda x:x[1][2])}
+    print("competition_dict", competition_dict)
 
     for k, v in competition_dict.items():
         if k in extract_dict.keys():
@@ -135,8 +138,10 @@ def main():
             members = extract_dict[k]
 
             for n in members:
-                text += f"{n}, "
+                text += f"{n},  "
             text += "]\n"
+    
+    print("ttext", text)
 
     # slackに通知する
     try:
