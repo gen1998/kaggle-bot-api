@@ -108,7 +108,7 @@ def extract_spreadsheet():
     RawData = SpreadSheet.worksheet(os.environ['SPREADSHEET_NAME_1'])
 
     data = RawData.get_all_values()
-    name_list = np.array(data)[:, 8][1:]
+    name_list = np.array(data)[:, 8][1:10]
 
     return list(name_list)
 
@@ -131,6 +131,7 @@ def main():
     
     competition_dict = {k: v for k, v in sorted(competition_dict.items(), key=lambda x:x[1][2])}
     print("competition_dict", competition_dict)
+    print("extract_dict", extract_dict)
 
     for k, v in competition_dict.items():
         if k in extract_dict.keys():
