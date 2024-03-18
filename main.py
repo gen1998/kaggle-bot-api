@@ -35,7 +35,7 @@ def extract_kaggle(kaggleAccounts):
 
     extract_dict = {}
 
-    for ka in kaggleAccounts:
+    for ka in kaggleAccounts[:10]:
         txt = ""
         URL = f"https://www.kaggle.com/{ka}/competitions?tab=active"
         driver.get(URL)
@@ -45,20 +45,23 @@ def extract_kaggle(kaggleAccounts):
         html = driver.page_source.encode('utf-8')
         soup = BeautifulSoup(html, 'html.parser')
         try:
-            soup_find = soup.find_all('ul', class_=lambda value: value and value.startswith('km-list km-list'))[0]
+            #soup_find = soup.find_all('ul', class_=lambda value: value and value.startswith('km-list km-list'))[0]
+            soup_find = soup.find_all('div', class_=lambda value: value and value.startswith('sc-fVzpDt'))[0]
         except:
             continue
         
         if len(soup_find)<1:
             continue
 
-        competition_name = soup_find.find_all('div', class_=lambda value: value and value.startswith('sc-fmKFGs'))
-        competition_rank = soup_find.find_all('span', class_=lambda value: value and value.startswith('sc-hIPBNq'))
+        competition_name = soup_find.find_all('div', class_=lambda value: value and value.startswith('sc-blmEgr'))
+        #competition_rank = soup_find.find_all('span', class_=lambda value: value and value.startswith('sc-hIPBNq'))
 
-        for name, rank in zip(competition_name, competition_rank):
-            rank_ = rank.contents[0]
+        #for name, rank in zip(competition_name, competition_rank):
+        for name in competition_name:
+            #rank_ = rank.contents[0]
             name_ = name.contents[0]
-            output = f"{int(rank_[:rank_.find('/')])}位@{ka}"
+            #output = f"{int(rank_[:rank_.find('/')])}位@{ka}"
+            output = f"@{ka}"
             if name_ in extract_dict.keys():
                 extract_dict[name_].append(output)
             else:
@@ -126,7 +129,7 @@ def main():
     slack_token = os.environ['SLACK_TOKEN']
     client = WebClient(token=slack_token)
 
-    text = "現在コンペに参加している人の一覧\n"
+    text = "現在コンペに参加している人の一覧(順位は今出すことができません)\n"
     
     competition_dict = {k: v for k, v in sorted(competition_dict.items(), key=lambda x:x[1][2])}
 
