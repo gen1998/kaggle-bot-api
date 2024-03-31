@@ -97,17 +97,19 @@ def extract_kaggle(kaggleAccounts):
                         break
         
         response = response['body']
-        response = json.loads(response)['documents']
+        response = json.loads(response)
 
-        for res in response:
-            rank = res['competitionDocument']['teamRank']
-            name = res['title']
-            output = f"{int(rank)}位@{ka}"
-        
-        if name in extract_dict.keys():
-            extract_dict[name].append(output)
-        else:
-            extract_dict[name] = [output]
+        if 'documents' in response.keys():
+            response = response['documents']
+            for res in response:
+                rank = res['competitionDocument']['teamRank']
+                name = res['title']
+                output = f"{int(rank)}位@{ka}"
+            
+            if name in extract_dict.keys():
+                extract_dict[name].append(output)
+            else:
+                extract_dict[name] = [output]
     
     return extract_dict
 
