@@ -36,7 +36,7 @@ def extract_kaggle(kaggleAccounts):
 
     extract_dict = {}
 
-    for ka in kaggleAccounts[:10]:
+    for ka in kaggleAccounts:
         txt = ""
         URL = f"https://www.kaggle.com/{ka}/competitions?tab=active"
         """
@@ -173,7 +173,7 @@ def main():
     slack_token = os.environ['SLACK_TOKEN']
     client = WebClient(token=slack_token)
 
-    text = "現在コンペに参加している人の一覧(順位は今出すことができません)\n"
+    text = "現在コンペに参加している人の一覧\n"
     
     competition_dict = {k: v for k, v in sorted(competition_dict.items(), key=lambda x:x[1][2])}
 
