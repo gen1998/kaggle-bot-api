@@ -17,6 +17,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from time import sleep
 import numpy as np
+import json
 
 def extract_kaggle(kaggleAccounts):
     # selenium driverの定義
@@ -35,13 +36,15 @@ def extract_kaggle(kaggleAccounts):
 
     extract_dict = {}
 
-    for ka in kaggleAccounts:
+    for ka in kaggleAccounts[:10]:
         txt = ""
         URL = f"https://www.kaggle.com/{ka}/competitions?tab=active"
+        """
         driver.get(URL)
 
         sleep(3)
 
+        
         html = driver.page_source.encode('utf-8')
         soup = BeautifulSoup(html, 'html.parser')
         try:
@@ -66,6 +69,45 @@ def extract_kaggle(kaggleAccounts):
                 extract_dict[name_].append(output)
             else:
                 extract_dict[name_] = [output]
+        """
+
+        options = webdriver.ChromeOptions()
+        options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
+        driver = webdriver.Chrome(options=options)
+
+        driver.get(URL)
+        sleep(3)
+
+        logs = driver.get_log('performance')
+
+        for entry in logs:
+            message_data = json.loads(entry['message'])['message']['params']
+            
+            # リクエスト情報が存在する場合のみ処理
+            if 'request' in message_data:
+                request_data = message_data['request']
+                request_url = request_data['url']
+                if request_url=="https://www.kaggle.com/api/i/search.SearchContentService/ListSearchContent":
+                    post_data = request_data['postData']
+                    post_data = json.loads(post_data)
+                    list_type = post_data['filters']['listType']
+                    if list_type.find("ACTIVE")>0:
+                        requestid = message_data["requestId"]
+                        response = driver.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestid})
+                        break
+        
+        response = response['body']
+        response = json.loads(response)['documents']
+
+        for res in response:
+            rank = res['competitionDocument']['teamRank']
+            name = res['title']
+            output = f"{int(rank)}位@{ka}"
+        
+        if name in extract_dict.keys():
+            extract_dict[name].append(output)
+        else:
+            extract_dict[name] = [output]
     
     return extract_dict
 
