@@ -19,6 +19,8 @@ from time import sleep
 import numpy as np
 import json
 
+from tqdm import tqdm
+
 def extract_kaggle(kaggleAccounts):
     # selenium driverの定義
     driver_path = '/app/.chromedriver/bin/chromedriver'
@@ -36,8 +38,7 @@ def extract_kaggle(kaggleAccounts):
 
     extract_dict = {}
 
-    for ka in kaggleAccounts:
-        txt = ""
+    for ka in tqdm(kaggleAccounts):
         URL = f"https://www.kaggle.com/{ka}/competitions?tab=active"
         """
         driver.get(URL)
@@ -91,6 +92,7 @@ def extract_kaggle(kaggleAccounts):
                     post_data = request_data['postData']
                     post_data = json.loads(post_data)
                     list_type = post_data['filters']['listType']
+                    # activeのみ表示
                     if list_type.find("ACTIVE")>0:
                         requestid = message_data["requestId"]
                         response = driver.execute_cdp_cmd('Network.getResponseBody', {'requestId': requestid})
@@ -102,9 +104,13 @@ def extract_kaggle(kaggleAccounts):
         if 'documents' in response.keys():
             response = response['documents']
             for res in response:
-                rank = res['competitionDocument']['teamRank']
-                name = res['title']
-                output = f"{int(rank)}位@{ka}"
+                if 'teamRank' in res['competitionDocument'].keys():
+                    rank = res['competitionDocument']['teamRank']
+                    name = res['title']
+                    output = f"{int(rank)}位@{ka}"
+                else:
+                    name = res['title']
+                    output = f"順位なし@{ka}"   
             
             if name in extract_dict.keys():
                 extract_dict[name].append(output)
