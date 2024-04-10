@@ -112,10 +112,10 @@ def extract_kaggle(kaggleAccounts):
                     name = res['title']
                     output = f"順位なし@{ka}"   
             
-            if name in extract_dict.keys():
-                extract_dict[name].append(output)
-            else:
-                extract_dict[name] = [output]
+                if name in extract_dict.keys():
+                    extract_dict[name].append(output)
+                else:
+                    extract_dict[name] = [output]
     
     return extract_dict
 
